@@ -1,9 +1,6 @@
 package com.japps.recordme
 
-import android.app.IntentService
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.media.MediaRecorder
@@ -20,7 +17,7 @@ open class RecorderService(name: String? = RecorderService::class.simpleName) :
         val outputFile = "${externalCacheDir?.absolutePath}/audiorecordtest.3gp"
         Log.e("Service", "output -> $outputFile")
         mediaRecorder.apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setAudioSource(MediaRecorder.AudioSource.VOICE_CALL)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB)
             setOutputFile(outputFile)
@@ -28,20 +25,30 @@ open class RecorderService(name: String? = RecorderService::class.simpleName) :
 
         try {
             mediaRecorder.prepare()
+            Thread.sleep(1000)
             mediaRecorder.start()
         } catch (ise: IllegalStateException) {
             Log.e("Service", "Exception -> $ise")
         } catch (ioe: IOException) {
             Log.e("Service", "Exception -> $ioe")
         }
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel()
+            val notification = Notification.Builder(this, "default_channel")
+                .setContentTitle("Using resource")
+                .setContentText("RecordMe is using GPS in the background")
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .build()
+            startForeground(10, notification)
+        }
         return Service.START_STICKY
     }
+
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name: CharSequence = getString(R.string.app_name)
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_LOW
 //            val channelId: String = CorUtility.Companion.getNotificationChannel()
             val channelId = "default_channel"
             val channel = NotificationChannel(channelId, name, importance)

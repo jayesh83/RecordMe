@@ -14,13 +14,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 
 private const val LOG_TAG = "AudioRecordTest"
-private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
+private const val REQUEST_PERMISSIONS = 200
 
 class MainActivity : AppCompatActivity() {
 
     // Requesting permission to RECORD_AUDIO
     private var permissionToRecordAccepted = false
-    private var permissions: Array<String> = arrayOf(Manifest.permission.RECORD_AUDIO)
+    private var permissions: Array<String> = arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_PHONE_STATE)
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         Log.e(LOG_TAG, "Coming")
-        permissionToRecordAccepted = if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
+        permissionToRecordAccepted = if (requestCode == REQUEST_PERMISSIONS) {
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         } else {
             false
@@ -43,12 +43,12 @@ class MainActivity : AppCompatActivity() {
                     // use checked " do not ask again "
                     Toast.makeText(
                         applicationContext,
-                        "In order to record voice, we need your permission",
+                        "In order to make better decisions, we need your GPS location",
                         Toast.LENGTH_SHORT
                     ).show()
-                    askRecordPermission()
+                    askPermissions()
                 } else {
-                    askRecordPermission()
+                    askPermissions()
                 }
             }
         }
@@ -59,13 +59,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        val permission = ActivityCompat.checkSelfPermission(
+        val recordPermission = ActivityCompat.checkSelfPermission(
             this,
             Manifest.permission.RECORD_AUDIO
         )
 
-        if (permission != PackageManager.PERMISSION_GRANTED)
-            askRecordPermission()
+        val phoneStatePermission = ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.READ_PHONE_STATE
+        )
+
+        if (recordPermission != PackageManager.PERMISSION_GRANTED)
+            askPermissions()
+
+        if (phoneStatePermission != PackageManager.PERMISSION_GRANTED)
+            askPermissions()
 
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -73,11 +81,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun askRecordPermission() {
+    private fun askPermissions() {
         ActivityCompat.requestPermissions(
             this@MainActivity,
             permissions,
-            REQUEST_RECORD_AUDIO_PERMISSION
+            REQUEST_PERMISSIONS
         )
     }
 
