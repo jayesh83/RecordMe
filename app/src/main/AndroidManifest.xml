@@ -3,8 +3,10 @@
     package="com.japps.recordme">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +15,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -25,11 +26,13 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".RecorderService" />
+        <service android:name=".RecorderService"
+            android:exported="false"/>
 
-        <receiver android:name=".CallReceiver">
+        <receiver android:name=".CallReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
             </intent-filter>
         </receiver>
 

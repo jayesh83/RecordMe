@@ -3,10 +3,14 @@ package com.japps.recordme
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
+import android.media.AudioManager.MODE_IN_CALL
+import android.media.AudioManager.MODE_IN_COMMUNICATION
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import java.io.IOException
 
 open class RecorderService(
@@ -15,11 +19,16 @@ open class RecorderService(
     private lateinit var mediaRecorder: MediaRecorder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Toast.makeText(applicationContext, "Recorder started", Toast.LENGTH_SHORT).show()
+        val audioManager: AudioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        if (audioManager.mode == MODE_IN_CALL || audioManager.mode == MODE_IN_COMMUNICATION)
+            Log.e("Voice Call", "Voice call active")
+        audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL), 0)
         mediaRecorder = MediaRecorder()
-        val outputFile = "${externalCacheDir?.absolutePath}/audiorecordtest.3gp"
+        val outputFile = "${externalCacheDir?.absolutePath}/audiorecordtest.amr"
         Log.e("Service", "output -> $outputFile")
         mediaRecorder.apply {
-            setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+            setAudioSource(MediaRecorder.AudioSource.UNPROCESSED)
             setOutputFormat(MediaRecorder.OutputFormat.AMR_NB)
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
             setOutputFile(outputFile)
@@ -66,8 +75,8 @@ open class RecorderService(
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaRecorder.stop();
-        mediaRecorder.release();
+        mediaRecorder.stop()
+        mediaRecorder.release()
         Log.e("Service", "Destroyed")
     }
 
@@ -76,5 +85,4 @@ open class RecorderService(
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
-
 }

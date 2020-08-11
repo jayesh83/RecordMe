@@ -41,20 +41,23 @@ class CallReceiver : BroadcastReceiver() {
             }
             EXTRA_STATE_IDLE -> {
                 idle = true
+
                 Log.e("Idle", "Yes")
                 if (rang && offhook){
                     Log.e("Cut", "talked and cutted at last")
                     stopRecorder(context)
                 }
+
                 if (rang && !offhook)
                     Log.e("Cut", "cutted call or didn't pickup or caller cutted the call")
+
                 if (!rang && offhook && idle){
                     Log.e("Cut","outgoing and talked at last cutted or recepient cutted the call no talks")
                     stopRecorder(context)
                 }
+
                 if (!rang && !offhook && idle)
                     Log.e("Cut", "outgoing and didn't talked at last cutted")
-
 
                 rang = false
                 offhook = false
@@ -62,6 +65,7 @@ class CallReceiver : BroadcastReceiver() {
             }
         }
     }
+
     private fun startRecorder(context: Context?) {
         context?.let {
             val recorderService = Intent(context, RecorderService::class.java)

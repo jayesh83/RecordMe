@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         Log.e(LOG_TAG, "Coming")
         permissionToRecordAccepted = if (requestCode == REQUEST_PERMISSIONS) {
+            Log.e("GrandResults", "results: $grantResults")
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         } else {
             false

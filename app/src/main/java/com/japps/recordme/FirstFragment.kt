@@ -39,7 +39,7 @@ class FirstFragment : Fragment() {
 
         view.findViewById<Button>(R.id.button_play).setOnClickListener {
             val outputFile =
-                "${requireActivity().externalCacheDir?.absolutePath}/audiorecordtest.3gp"
+                "${requireActivity().externalCacheDir?.absolutePath}/audiorecordtest.amr"
             try {
                 mediaPlayer = MediaPlayer().apply {
                     setDataSource(outputFile)
@@ -47,6 +47,7 @@ class FirstFragment : Fragment() {
                     start()
                 }
             } catch (e: Exception) {
+                Log.e("Player", "Error -> $e")
                 Toast.makeText(requireContext().applicationContext, "Error", Toast.LENGTH_SHORT)
                     .show()
             }
