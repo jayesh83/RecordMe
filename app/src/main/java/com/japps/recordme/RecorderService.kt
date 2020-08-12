@@ -13,9 +13,7 @@ import android.util.Log
 import android.widget.Toast
 import java.io.IOException
 
-open class RecorderService(
-    name: String? = RecorderService::class.simpleName
-) : IntentService(name) {
+open class RecorderService : IntentService(RecorderService::class.simpleName) {
     private lateinit var mediaRecorder: MediaRecorder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -23,7 +21,11 @@ open class RecorderService(
         val audioManager: AudioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         if (audioManager.mode == MODE_IN_CALL || audioManager.mode == MODE_IN_COMMUNICATION)
             Log.e("Voice Call", "Voice call active")
-        audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL), 0)
+        audioManager.setStreamVolume(
+            AudioManager.STREAM_VOICE_CALL,
+            audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
+            0
+        )
         mediaRecorder = MediaRecorder()
         val outputFile = "${externalCacheDir?.absolutePath}/audiorecordtest.amr"
         Log.e("Service", "output -> $outputFile")
@@ -50,7 +52,7 @@ open class RecorderService(
             createNotificationChannel()
             val notification = Notification.Builder(this, "default_channel")
                 .setContentTitle("Using resource")
-                .setContentText("RecordMe is using GPS in the background")
+                .setContentText("RecordMe is working in the background")
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .build()
             startForeground(10, notification)

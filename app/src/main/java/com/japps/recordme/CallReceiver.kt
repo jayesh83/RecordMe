@@ -6,9 +6,8 @@ import android.content.Intent
 import android.os.Build
 import android.telephony.TelephonyManager.*
 import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
+import android.widget.Toast
 import androidx.core.content.ContextCompat
-
 
 class CallReceiver : BroadcastReceiver() {
     companion object {
@@ -18,8 +17,13 @@ class CallReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (!intent?.action.equals("android.intent.action.PHONE_STATE"))
+        if (!intent?.action.equals("android.intent.action.PHONE_STATE")) {
+            Log.e("CallReceiver", "Not call, called by alarm manager")
+            context?.also {
+                Toast.makeText(context, "Receiver", Toast.LENGTH_LONG).show()
+            }
             return
+        }
         Log.e("State", "-> $rang, $offhook, $idle")
 
         when (intent?.getStringExtra(EXTRA_STATE)) {
@@ -30,11 +34,11 @@ class CallReceiver : BroadcastReceiver() {
 
             EXTRA_STATE_OFFHOOK -> {
                 offhook = true
-                if (rang && offhook){
+                if (rang && offhook) {
                     Log.e("Incoming", "Talking")
                     startRecorder(context)
                 }
-                if (offhook && !rang){
+                if (offhook && !rang) {
                     startRecorder(context)
                     Log.e("Outgoing", "outgoing yes")
                 }
@@ -43,7 +47,7 @@ class CallReceiver : BroadcastReceiver() {
                 idle = true
 
                 Log.e("Idle", "Yes")
-                if (rang && offhook){
+                if (rang && offhook) {
                     Log.e("Cut", "talked and cutted at last")
                     stopRecorder(context)
                 }
@@ -51,8 +55,11 @@ class CallReceiver : BroadcastReceiver() {
                 if (rang && !offhook)
                     Log.e("Cut", "cutted call or didn't pickup or caller cutted the call")
 
-                if (!rang && offhook && idle){
-                    Log.e("Cut","outgoing and talked at last cutted or recepient cutted the call no talks")
+                if (!rang && offhook && idle) {
+                    Log.e(
+                        "Cut",
+                        "outgoing and talked at last cutted or recepient cutted the call no talks"
+                    )
                     stopRecorder(context)
                 }
 
