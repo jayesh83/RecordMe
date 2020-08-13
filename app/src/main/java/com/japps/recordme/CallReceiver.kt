@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 
 class CallReceiver : BroadcastReceiver() {
+
     companion object {
         private var idle: Boolean = false
         private var rang: Boolean = false
@@ -17,6 +18,7 @@ class CallReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        Toast.makeText(context, "There's Call", Toast.LENGTH_LONG).show()
         if (!intent?.action.equals("android.intent.action.PHONE_STATE")) {
             Log.e("CallReceiver", "Not call, called by alarm manager")
             context?.also {

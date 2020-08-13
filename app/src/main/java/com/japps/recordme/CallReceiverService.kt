@@ -8,6 +8,8 @@ import android.content.IntentFilter
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.firebase.messaging.FirebaseMessagingService
 import com.japps.recordme.notification.ServiceNotificationManager
 
 private val tag = CallReceiverService::class.java.simpleName
@@ -15,10 +17,13 @@ const val restartBroadcastAction = "com.japps.restartCallReceiverService"
 
 class CallReceiverService : Service() {
     private lateinit var callReceiverBroadcast: CallReceiver
+    private lateinit var localBroadcastManager: LocalBroadcastManager
+
     override fun onCreate() {
         Log.e(tag, "onCreate")
 //        Log.e(tag, "CallReceiverService created at ${Calendar.getInstance().time}}")
         Toast.makeText(baseContext, "CallReceiverService Started", Toast.LENGTH_SHORT).show()
+        localBroadcastManager = LocalBroadcastManager.getInstance(baseContext)
         registerCallReceiver()
         initializeNotification()
     }
@@ -37,7 +42,6 @@ class CallReceiverService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.e(tag, "onStartCommand\nService listening: $isReceiverRegistered")
         if (!isReceiverRegistered)
             registerCallReceiver()
         return START_STICKY
@@ -45,18 +49,21 @@ class CallReceiverService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    override fun onTaskRemoved(rootIntent: Intent?) {
+    private fun unregisterCallReceiverAndRestartReceiver() {
         unregisterCallReceiver()
         Intent(baseContext, CallReceiverServiceRestarter::class.java).let {
             it.action = restartBroadcastAction
-            sendBroadcast(it)
+            localBroadcastManager.sendBroadcast(it)
             Toast.makeText(baseContext, "Destroyed", Toast.LENGTH_SHORT).show()
-            Log.e(tag, "Service listening: $isReceiverRegistered")
         }
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        unregisterCallReceiverAndRestartReceiver()
+    }
+
     override fun onDestroy() {
-        Toast.makeText(baseContext, "System removed", Toast.LENGTH_SHORT).show()
+        unregisterCallReceiverAndRestartReceiver()
         super.onDestroy()
     }
 
