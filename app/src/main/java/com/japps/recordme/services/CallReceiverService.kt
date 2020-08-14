@@ -1,5 +1,6 @@
-package com.japps.recordme
+package com.japps.recordme.services
 
+import android.app.IntentService
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,21 +10,20 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.firebase.messaging.FirebaseMessagingService
+import com.japps.recordme.utils.ServiceStarter
 import com.japps.recordme.notification.ServiceNotificationManager
+import com.japps.recordme.receivers.CallReceiver
 
 private val tag = CallReceiverService::class.java.simpleName
 const val restartBroadcastAction = "com.japps.restartCallReceiverService"
 
-class CallReceiverService : Service() {
+class CallReceiverService : IntentService(CallReceiverService::class.java.simpleName) {
     private lateinit var callReceiverBroadcast: CallReceiver
-    private lateinit var localBroadcastManager: LocalBroadcastManager
 
     override fun onCreate() {
         Log.e(tag, "onCreate")
 //        Log.e(tag, "CallReceiverService created at ${Calendar.getInstance().time}}")
         Toast.makeText(baseContext, "CallReceiverService Started", Toast.LENGTH_SHORT).show()
-        localBroadcastManager = LocalBroadcastManager.getInstance(baseContext)
         registerCallReceiver()
         initializeNotification()
     }
@@ -49,11 +49,15 @@ class CallReceiverService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    override fun onHandleIntent(intent: Intent?) {
+        TODO("Not yet implemented")
+    }
+
     private fun unregisterCallReceiverAndRestartReceiver() {
         unregisterCallReceiver()
         Intent(baseContext, CallReceiverServiceRestarter::class.java).let {
             it.action = restartBroadcastAction
-            localBroadcastManager.sendBroadcast(it)
+            sendBroadcast(it)
             Toast.makeText(baseContext, "Destroyed", Toast.LENGTH_SHORT).show()
         }
     }

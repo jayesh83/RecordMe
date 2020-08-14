@@ -1,4 +1,4 @@
-package com.japps.recordme
+package com.japps.recordme.receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,13 +8,15 @@ import android.telephony.TelephonyManager.*
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.japps.recordme.services.RecorderService
 
 class CallReceiver : BroadcastReceiver() {
-
-    companion object {
+    companion object{
         private var idle: Boolean = false
         private var rang: Boolean = false
         private var offhook: Boolean = false
+        private var ongoingCall = false
+        private var anotherCall = false
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -31,26 +33,40 @@ class CallReceiver : BroadcastReceiver() {
         when (intent?.getStringExtra(EXTRA_STATE)) {
             EXTRA_STATE_RINGING -> {
                 rang = true
+                if (ongoingCall)
+                    anotherCall = true
                 Log.e("Ringing", "Yes")
             }
 
             EXTRA_STATE_OFFHOOK -> {
                 offhook = true
+
+                if (anotherCall) {
+                    anotherCall = false
+                    return
+                }
+
                 if (rang && offhook) {
                     Log.e("Incoming", "Talking")
+                    ongoingCall = true
                     startRecorder(context)
                 }
-                if (offhook && !rang) {
+
+                if (!rang && offhook) {
+                    ongoingCall = true
                     startRecorder(context)
                     Log.e("Outgoing", "outgoing yes")
                 }
+
             }
+
             EXTRA_STATE_IDLE -> {
                 idle = true
 
                 Log.e("Idle", "Yes")
                 if (rang && offhook) {
                     Log.e("Cut", "talked and cutted at last")
+                    ongoingCall = false
                     stopRecorder(context)
                 }
 
@@ -62,6 +78,7 @@ class CallReceiver : BroadcastReceiver() {
                         "Cut",
                         "outgoing and talked at last cutted or recepient cutted the call no talks"
                     )
+                    ongoingCall = false
                     stopRecorder(context)
                 }
 

@@ -10,8 +10,10 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.work.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.japps.recordme.utils.CloudPusher
 
 private const val LOG_TAG = "AudioRecordTest"
 private const val REQUEST_PERMISSIONS = 200
@@ -53,6 +55,31 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        val constraints = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Constraints.Builder()
+                .setRequiresCharging(false)
+                .setRequiresDeviceIdle(false)
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build()
+        } else {
+            Constraints.Builder()
+                .setRequiresCharging(false)
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build()
+        }
+
+        val uploadWorkRequest: WorkRequest = OneTimeWorkRequest.from(CloudPusher::class.java)
+
+//            OneTimeWorkRequestBuilder<CloudPusher>()
+//                .setConstraints(constraints)
+//                .build()
+
+        WorkManager
+            .getInstance(applicationContext)
+            .enqueue(uploadWorkRequest)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

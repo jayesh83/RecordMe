@@ -1,4 +1,4 @@
-package com.japps.recordme
+package com.japps.recordme.services
 
 import android.app.*
 import android.content.Context
@@ -11,13 +11,20 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
+import com.japps.recordme.R
 import java.io.IOException
+import java.text.MessageFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.*
 
 open class RecorderService : IntentService(RecorderService::class.simpleName) {
     private lateinit var mediaRecorder: MediaRecorder
-
+    private lateinit var newFileName: String
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Toast.makeText(applicationContext, "Recorder started", Toast.LENGTH_SHORT).show()
+        newFileName = generateFileName()
         val audioManager: AudioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         if (audioManager.mode == MODE_IN_CALL || audioManager.mode == MODE_IN_COMMUNICATION)
             Log.e("Voice Call", "Voice call active")
@@ -27,7 +34,7 @@ open class RecorderService : IntentService(RecorderService::class.simpleName) {
             0
         )
         mediaRecorder = MediaRecorder()
-        val outputFile = "${externalCacheDir?.absolutePath}/audiorecordtest.amr"
+        val outputFile = "${externalCacheDir?.absolutePath}/$newFileName.amr"
         Log.e("Service", "output -> $outputFile")
         mediaRecorder.apply {
             setAudioSource(MediaRecorder.AudioSource.UNPROCESSED)
@@ -58,6 +65,15 @@ open class RecorderService : IntentService(RecorderService::class.simpleName) {
             startForeground(10, notification)
         }
         return Service.START_STICKY
+    }
+
+    private fun generateFileName(): String {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val dateTime = LocalDateTime.now()
+                dateTime.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT))
+            } else {
+                "audiotest"
+            }
     }
 
     private fun createNotificationChannel() {

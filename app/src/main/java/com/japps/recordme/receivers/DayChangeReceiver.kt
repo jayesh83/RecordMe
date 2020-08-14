@@ -1,4 +1,4 @@
-package com.japps.recordme
+package com.japps.recordme.receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context

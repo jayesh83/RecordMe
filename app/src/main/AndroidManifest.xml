@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.japps.recordme">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
-    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
@@ -27,15 +27,15 @@
         </activity>
 
         <service
-            android:name=".RecorderService"
+            android:name=".services.RecorderService"
             android:exported="false" />
 
         <service
-            android:name=".CallReceiverService"
+            android:name=".services.CallReceiverService"
             android:exported="false" />
 
         <receiver
-            android:name=".DayChangeReceiver"
+            android:name=".receivers.DayChangeReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -43,7 +43,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".CallReceiverServiceRestarter"
+        <receiver android:name=".services.CallReceiverServiceRestarter"
             android:enabled="true"
             android:exported="true"
             android:directBootAware="true">
@@ -54,17 +54,17 @@
             </intent-filter>
         </receiver>
 
-        <receiver
-            android:name=".CallReceiver"
-            android:enabled="true"
-            android:exported="false">
+<!--        <receiver-->
+<!--            android:name=".receivers.CallReceiver"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="false">-->
 
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" />
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.PHONE_STATE" />-->
+<!--                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />-->
+<!--            </intent-filter>-->
 
-        </receiver>
+<!--        </receiver>-->
 
     </application>
 </manifest>
